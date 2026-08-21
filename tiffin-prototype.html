@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiffin — Home-cooked delivery</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Archivo', sans-serif; }
+
+body {
+    background-color: #0f0a17;
+    color: #f5ede0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.wrapper { display: flex; flex-direction: column; align-items: center; }
+
+.phone-frame {
+    width: 340px;
+    height: 700px;
+    background-color: #1a1425;
+    border-radius: 32px;
+    border: 2px solid #2d2338;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+
+.screen {
+    position: absolute;
+    inset: 0;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.screen.active { display: flex; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+
+h1, h2, h3, h4 { font-family: 'Archivo Black', sans-serif; font-weight: 400; letter-spacing: -0.5px; }
+
+.gold { color: #f2a93b; }
+.chili { color: #e8483a; }
+.green { color: #7a9b57; }
+
+.btn-primary {
+    background: #f2a93b;
+    color: #1a1425;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    border-radius: 14px;
+    font-weight: 800;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    margin-top: auto;
+}
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary.disabled { background: #3a3346; color: #6b6478; cursor: not-allowed; }
+
+.btn-ghost {
+    background: transparent;
+    color: #f2a93b;
+    border: 1.5px solid #f2a93b;
+    padding: 13px;
+    width: 100%;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* WELCOME */
+.welcome-screen { justify-content: space-between; background: radial-gradient(circle at 30% 20%, #2a1f3d 0%, #0f0a17 70%); padding: 32px 20px 30px; }
+.brand { text-align: center; margin-top: 30px; }
+.tiffin-icon { width: 60px; height: 60px; margin: 0 auto 14px; position: relative; }
+.tiffin-icon .tin { width: 60px; height: 16px; background: #f2a93b; border-radius: 6px; position: absolute; left: 0; }
+.tiffin-icon .tin:nth-child(1) { bottom: 0; }
+.tiffin-icon .tin:nth-child(2) { bottom: 18px; background: #e8483a; width: 54px; left: 3px; }
+.tiffin-icon .tin:nth-child(3) { bottom: 36px; background: #7a9b57; width: 48px; left: 6px; }
+.tagline { font-size: 10px; letter-spacing: 3px; color: #9b8fae; margin-top: 6px; }
+.hero h2 { font-size: 30px; line-height: 1.15; margin-bottom: 10px; }
+.hero p { font-size: 12px; color: #9b8fae; margin-bottom: 22px; line-height: 1.5; }
+
+/* HOME */
+.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-top: 8px; }
+.greeting { font-size: 11px; color: #9b8fae; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #f2a93b, #e8483a); cursor: pointer; }
+.search-bar { background: #241b32; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.search-bar input { background: transparent; border: none; color: #f5ede0; font-size: 12px; outline: none; width: 100%; font-family: 'Archivo'; }
+.search-bar input::placeholder { color: #6b6478; }
+
+.cat-row { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 18px; }
+.cat-chip { background: #241b32; padding: 8px 14px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; border: 1px solid transparent; color: #c4b8d4; }
+.cat-chip.selected { background: #f2a93b; color: #1a1425; font-weight: 700; }
+
+.section-title { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
+.section-title a { color: #9b8fae; text-decoration: none; font-size: 11px; cursor: pointer; }
+
+.dish-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.dish-card { background: #241b32; border-radius: 16px; padding: 12px; display: flex; gap: 12px; align-items: center; cursor: pointer; }
+.dish-thumb { width: 56px; height: 56px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.dish-info { flex: 1; }
+.dish-info h5 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.dish-info p { font-size: 10px; color: #9b8fae; margin-bottom: 5px; }
+.dish-price { font-size: 12px; font-weight: 800; color: #f2a93b; }
+.add-btn { width: 28px; height: 28px; border-radius: 50%; background: #f2a93b; color: #1a1425; border: none; font-weight: 900; font-size: 15px; cursor: pointer; flex-shrink: 0; }
+
+.bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: #17101f; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #2d2338; }
+.bottom-nav a { color: #6b6478; text-decoration: none; font-size: 9px; text-align: center; cursor: pointer; display: block; }
+.bottom-nav a.active { color: #f2a93b; }
+.bottom-nav .icon { font-size: 16px; display: block; margin-bottom: 2px; }
+.home-screen, .orders-screen, .profile-screen { padding-bottom: 74px; }
+
+.cart-fab { position: absolute; bottom: 74px; left: 20px; right: 20px; background: #f2a93b; color: #1a1425; border-radius: 14px; padding: 13px 16px; display: none; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(242,169,59,0.3); }
+.cart-fab.show { display: flex; }
+
+/* DETAIL */
+.detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-top: 8px; }
+.back-btn { color: #f2a93b; font-size: 20px; cursor: pointer; }
+.dish-hero { display: flex; justify-content: center; margin: 16px 0; }
+.dish-hero-icon { width: 100px; height: 100px; border-radius: 26px; background: #241b32; display: flex; align-items: center; justify-content: center; font-size: 42px; }
+.detail-body { display: flex; flex-direction: column; flex: 1; }
+.price-row { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 8px; }
+.price-tag { font-size: 20px; color: #f2a93b; font-weight: 800; font-family: 'Archivo Black'; }
+.desc { font-size: 12px; color: #b3a8c2; line-height: 1.6; margin-bottom: 16px; }
+.tags-row { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.tag { font-size: 10px; background: #241b32; padding: 5px 10px; border-radius: 8px; color: #c4b8d4; }
+.qty-row { display: flex; align-items: center; justify-content: space-between; background: #241b32; border-radius: 14px; padding: 10px 16px; margin-bottom: 16px; }
+.qty-btn { width: 30px; height: 30px; border-radius: 50%; background: #f2a93b; color: #1a1425; border: none; font-weight: 900; font-size: 16px; cursor: pointer; }
+.qty-num { font-size: 16px; font-weight: 800; min-width: 24px; text-align: center; }
+
+/* CART */
+.cart-item { background: #241b32; border-radius: 14px; padding: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.cart-item-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.cart-item-info { flex: 1; }
+.cart-item-info h5 { font-size: 12px; font-weight: 700; }
+.cart-item-info span { font-size: 11px; color: #f2a93b; font-weight: 700; }
+.mini-qty { display: flex; align-items: center; gap: 8px; }
+.mini-qty button { width: 22px; height: 22px; border-radius: 50%; background: #3a3346; color: #f5ede0; border: none; font-size: 12px; cursor: pointer; }
+.summary-block { background: #241b32; border-radius: 16px; padding: 16px; margin: 14px 0; }
+.summary-line { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; color: #b3a8c2; }
+.summary-line.total { color: #f5ede0; font-weight: 800; font-size: 14px; border-top: 1px solid #3a3346; margin-top: 4px; padding-top: 12px; }
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #6b6478; }
+.empty-state .emoji { font-size: 40px; margin-bottom: 10px; }
+
+/* CHECKOUT */
+.addr-card, .pay-card { background: #241b32; border-radius: 14px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 2px solid transparent; }
+.addr-card.selected, .pay-card.selected { border-color: #f2a93b; }
+.addr-card h5, .pay-card h5 { font-size: 12px; margin-bottom: 3px; }
+.addr-card p, .pay-card p { font-size: 10px; color: #9b8fae; }
+.check-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #6b6478; flex-shrink: 0; }
+.check-dot.on { border-color: #f2a93b; background: #f2a93b; position: relative; }
+
+/* CONFIRMATION */
+.confirm-screen { align-items: center; text-align: center; padding-top: 50px; }
+.confirm-stack { margin-bottom: 20px; }
+.confirm-stack .tiffin-icon { width: 70px; height: 70px; }
+.confirm-stack .tin { height: 18px; }
+.confirm-screen h2 { margin-bottom: 8px; font-size: 22px; }
+.confirm-screen p { font-size: 12px; color: #9b8fae; margin-bottom: 24px; }
+.order-id { font-size: 11px; color: #f2a93b; font-weight: 700; margin-bottom: 20px; }
+
+/* TRACKING - signature tiffin stack */
+.tracking-screen { padding-top: 8px; }
+.track-visual { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0 20px; }
+.stack-tins { display: flex; flex-direction: column-reverse; gap: 4px; height: 140px; justify-content: flex-start; align-items: center; }
+.stack-tin { width: 90px; height: 28px; border-radius: 8px; opacity: 0.15; transform: scale(0.9); transition: all 0.5s ease; }
+.stack-tin.filled { opacity: 1; transform: scale(1); }
+.stack-tin:nth-child(1) { background: #7a9b57; }
+.stack-tin:nth-child(2) { background: #e8483a; }
+.stack-tin:nth-child(3) { background: #f2a93b; }
+.stack-tin:nth-child(4) { background: #c4b8d4; }
+.track-status { text-align: center; margin: 16px 0 20px; }
+.track-status h3 { font-size: 16px; margin-bottom: 4px; }
+.track-status p { font-size: 11px; color: #9b8fae; }
+.track-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+.track-step { display: flex; gap: 12px; align-items: center; opacity: 0.35; }
+.track-step.done { opacity: 1; }
+.step-dot { width: 22px; height: 22px; border-radius: 50%; background: #3a3346; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.track-step.done .step-dot { background: #f2a93b; color: #1a1425; }
+.step-label { font-size: 12px; font-weight: 600; }
+.step-time { font-size: 10px; color: #6b6478; margin-left: auto; }
+
+/* PROFILE */
+.profile-header { text-align: center; margin: 14px 0 20px; }
+.profile-header .avatar { width: 64px; height: 64px; margin: 0 auto 10px; cursor: default; }
+.profile-header h3 { font-size: 15px; }
+.profile-header p { font-size: 11px; color: #9b8fae; }
+.menu-item { background: #241b32; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px; cursor: pointer; }
+.menu-item .arrow { color: #6b6478; }
+
+/* ORDERS LIST */
+.orders-screen h3 { margin: 10px 0 16px; font-size: 15px; }
+.order-item { background: #241b32; border-radius: 14px; padding: 13px; margin-bottom: 10px; cursor: pointer; }
+.order-item-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.order-item h5 { font-size: 12px; }
+.order-item small { color: #6b6478; font-size: 10px; }
+.status-pill { font-size: 9px; padding: 4px 9px; border-radius: 20px; font-weight: 700; }
+.status-pill.active { background: #3a2410; color: #f2a93b; }
+.status-pill.done { background: #1c2a17; color: #7a9b57; }
+
+.hint { color: #6b6478; font-size: 11px; margin-top: 16px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="phone-frame">
+
+<!-- WELCOME -->
+<div class="screen welcome-screen active" id="s-welcome">
+    <div class="brand">
+        <div class="tiffin-icon"><div class="tin"></div><div class="tin"></div><div class="tin"></div></div>
+        <h1>Tiffin</h1>
+        <p class="tagline">HOME-COOKED, DELIVERED</p>
+    </div>
+    <div class="hero">
+        <h2>Real meals.<br><span class="gold">From real<br>kitchens.</span></h2>
+        <p>Home cooks and street vendors near you, packed fresh in the tiffin tradition.</p>
+        <button class="btn-primary" onclick="go('s-home')">Get Started &rsaquo;</button>
+    </div>
+</div>
+
+<!-- HOME -->
+<div class="screen home-screen" id="s-home">
+    <header class="app-header">
+        <div>
+            <p class="greeting">Delivering to Home</p>
+            <h3 style="font-size:15px;">Koramangala 📍</h3>
+        </div>
+        <div class="avatar" onclick="go('s-profile')"></div>
+    </header>
+    <div class="search-bar"><span>🔍</span><input placeholder="Search dishes or kitchens"></div>
+    <div class="cat-row" id="cat-row"></div>
+    <div class="section-title"><h4>Today's Menu</h4><a onclick="go('s-orders')">My Orders</a></div>
+    <div class="dish-list" id="dish-list"></div>
+    <nav class="bottom-nav">
+        <a class="active" onclick="go('s-home')"><span class="icon">🏠</span>Home</a>
+        <a onclick="go('s-orders')"><span class="icon">📦</span>Orders</a>
+        <a onclick="go('s-cart')"><span class="icon">🧺</span>Cart</a>
+        <a onclick="go('s-profile')"><span class="icon">👤</span>Profile</a>
+    </nav>
+    <div class="cart-fab" id="cart-fab" onclick="go('s-cart')">
+        <span id="cart-fab-count">0 items</span>
+        <span id="cart-fab-total">View Cart · ₹0 &rsaquo;</span>
+    </div>
+</div>
+
+<!-- DISH DETAIL -->
+<div class="screen detail-screen" id="s-detail">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-home')">&lsaquo;</span>
+        <h3 style="font-size:14px;">Dish Details</h3>
+        <span></span>
+    </div>
+    <div class="dish-hero"><div class="dish-hero-icon" id="detail-icon">🍛</div></div>
+    <div class="detail-body">
+        <div class="price-row">
+            <h2 id="detail-name" style="font-size:20px;">Dal Makhani Thali</h2>
+            <span class="price-tag" id="detail-price">₹180</span>
+        </div>
+        <p class="desc" id="detail-desc">Slow-cooked black lentils, butter naan, jeera rice, and a side of fresh salad. Made fresh daily by Kitchen Aruna.</p>
+        <div class="tags-row">
+            <span class="tag">🌶️ Medium spice</span>
+            <span class="tag">🌱 Vegetarian</span>
+            <span class="tag">⏱️ 25-30 min</span>
+        </div>
+        <div class="qty-row">
+            <span style="font-size:12px; color:#9b8fae;">Quantity</span>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <button class="qty-btn" onclick="changeQty(-1)">−</button>
+                <span class="qty-num" id="qty-num">1</span>
+                <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="addToCart()">Add to Cart · <span id="add-total">₹180</span></button>
+    </div>
+</div>
+
+<!-- CART -->
+<div class="screen" id="s-cart">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-home')">&lsaquo;</span>
+        <h3 style="font-size:14px;">Your Cart</h3>
+        <span></span>
+    </div>
+    <div id="cart-items" style="margin-top:14px; flex:1; display:flex; flex-direction:column;"></div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="screen" id="s-checkout">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-cart')">&lsaquo;</span>
+        <h3 style="font-size:14px;">Checkout</h3>
+        <span></span>
+    </div>
+    <p class="hint" style="text-align:left; margin-top:14px;">DELIVERY ADDRESS</p>
+    <div class="addr-card selected" onclick="selectCard(this,'addr')">
+        <div><h5>Home</h5><p>4th Block, Koramangala, Bengaluru</p></div>
+        <div class="check-dot on"></div>
+    </div>
+    <div class="addr-card" onclick="selectCard(this,'addr')">
+        <div><h5>Work</h5><p>Prestige Tech Park, Bengaluru</p></div>
+        <div class="check-dot"></div>
+    </div>
+    <p class="hint" style="text-align:left; margin-top:14px;">PAYMENT METHOD</p>
+    <div class="pay-card selected" onclick="selectCard(this,'pay')">
+        <div><h5>💳 UPI</h5><p>Pay via any UPI app</p></div>
+        <div class="check-dot on"></div>
+    </div>
+    <div class="pay-card" onclick="selectCard(this,'pay')">
+        <div><h5>💵 Cash on Delivery</h5><p>Pay when it arrives</p></div>
+        <div class="check-dot"></div>
+    </div>
+    <div class="summary-block">
+        <div class="summary-line"><span>Subtotal</span><span id="co-subtotal">₹0</span></div>
+        <div class="summary-line"><span>Delivery Fee</span><span>₹20</span></div>
+        <div class="summary-line total"><span>Total</span><span id="co-total">₹0</span></div>
+    </div>
+    <button class="btn-primary" onclick="placeOrder()">Place Order &rsaquo;</button>
+</div>
+
+<!-- CONFIRMATION -->
+<div class="screen confirm-screen" id="s-confirm">
+    <div class="confirm-stack">
+        <div class="tiffin-icon" style="width:70px;height:70px;">
+            <div class="tin" style="height:18px;"></div>
+            <div class="tin" style="height:18px; bottom:20px; width:63px; left:3px;"></div>
+            <div class="tin" style="height:18px; bottom:40px; width:56px; left:7px;"></div>
+        </div>
+    </div>
+    <h2>Order Placed!</h2>
+    <p>Kitchen Aruna is preparing your tiffin</p>
+    <div class="order-id">ORDER #TF-2847</div>
+    <button class="btn-primary" onclick="startTracking()">Track My Order &rsaquo;</button>
+    <button class="btn-ghost" onclick="go('s-home')">Back to Home</button>
+</div>
+
+<!-- TRACKING -->
+<div class="screen tracking-screen" id="s-tracking">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-home')">&lsaquo;</span>
+        <h3 style="font-size:14px;">Order #TF-2847</h3>
+        <span></span>
+    </div>
+    <div class="track-visual">
+        <div class="stack-tins" id="stack-tins">
+            <div class="stack-tin"></div>
+            <div class="stack-tin"></div>
+            <div class="stack-tin"></div>
+            <div class="stack-tin"></div>
+        </div>
+    </div>
+    <div class="track-status">
+        <h3 id="track-title" class="gold">Order Confirmed</h3>
+        <p id="track-sub">Kitchen Aruna received your order</p>
+    </div>
+    <div class="track-steps">
+        <div class="track-step" id="step-1"><div class="step-dot">✓</div><div class="step-label">Order Confirmed</div><div class="step-time">Just now</div></div>
+        <div class="track-step" id="step-2"><div class="step-dot">2</div><div class="step-label">Cooking Your Meal</div><div class="step-time"></div></div>
+        <div class="track-step" id="step-3"><div class="step-dot">3</div><div class="step-label">Out for Delivery</div><div class="step-time"></div></div>
+        <div class="track-step" id="step-4"><div class="step-dot">4</div><div class="step-label">Delivered</div><div class="step-time"></div></div>
+    </div>
+    <button class="btn-ghost" onclick="advanceTracking()">Simulate Next Step &rsaquo;</button>
+</div>
+
+<!-- ORDERS -->
+<div class="screen orders-screen" id="s-orders">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-home')">&lsaquo;</span>
+        <h3 style="font-size:14px;">My Orders</h3>
+        <span></span>
+    </div>
+    <h3>Active</h3>
+    <div class="order-item" onclick="go('s-tracking')">
+        <div class="order-item-top"><h5>Order #TF-2847</h5><span class="status-pill active">Preparing</span></div>
+        <small>Kitchen Aruna · Dal Makhani Thali x1</small>
+    </div>
+    <h3 style="margin-top:16px;">Past</h3>
+    <div class="order-item">
+        <div class="order-item-top"><h5>Order #TF-2801</h5><span class="status-pill done">Delivered</span></div>
+        <small>Chai Point Kitchen · Aug 14</small>
+    </div>
+    <div class="order-item">
+        <div class="order-item-top"><h5>Order #TF-2755</h5><span class="status-pill done">Delivered</span></div>
+        <small>Kitchen Aruna · Aug 5</small>
+    </div>
+    <nav class="bottom-nav">
+        <a onclick="go('s-home')"><span class="icon">🏠</span>Home</a>
+        <a class="active" onclick="go('s-orders')"><span class="icon">📦</span>Orders</a>
+        <a onclick="go('s-cart')"><span class="icon">🧺</span>Cart</a>
+        <a onclick="go('s-profile')"><span class="icon">👤</span>Profile</a>
+    </nav>
+</div>
+
+<!-- PROFILE -->
+<div class="screen profile-screen" id="s-profile">
+    <div class="detail-header">
+        <span class="back-btn" onclick="go('s-home')">&lsaquo;</span>
+        <h3 style="font-size:14px;">Profile</h3>
+        <span></span>
+    </div>
+    <div class="profile-header">
+        <div class="avatar"></div>
+        <h3>Anaya Rao</h3>
+        <p>anaya.rao@email.com</p>
+    </div>
+    <div class="menu-item" onclick="go('s-orders')"><span>📦 My Orders</span><span class="arrow">›</span></div>
+    <div class="menu-item"><span>📍 Saved Addresses</span><span class="arrow">›</span></div>
+    <div class="menu-item"><span>💳 Payment Methods</span><span class="arrow">›</span></div>
+    <div class="menu-item"><span>🔔 Notifications</span><span class="arrow">›</span></div>
+    <div class="menu-item"><span>⚙️ Settings</span><span class="arrow">›</span></div>
+    <div class="menu-item"><span>🚪 Log Out</span><span class="arrow">›</span></div>
+    <nav class="bottom-nav">
+        <a onclick="go('s-home')"><span class="icon">🏠</span>Home</a>
+        <a onclick="go('s-orders')"><span class="icon">📦</span>Orders</a>
+        <a onclick="go('s-cart')"><span class="icon">🧺</span>Cart</a>
+        <a class="active" onclick="go('s-profile')"><span class="icon">👤</span>Profile</a>
+    </nav>
+</div>
+
+</div>
+<p class="hint">Tap through: browse → add to cart → checkout → track your order</p>
+</div>
+
+<script>
+function go(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+const dishes = [
+    { id: 1, name: 'Dal Makhani Thali', kitchen: 'Kitchen Aruna', price: 180, icon: '🍛', bg: '#3a2f1a', desc: 'Slow-cooked black lentils, butter naan, jeera rice, and a side of fresh salad. Made fresh daily by Kitchen Aruna.', cat: 'Veg' },
+    { id: 2, name: 'Chicken Biryani', kitchen: 'Nawab\'s Kitchen', price: 220, icon: '🍗', bg: '#3a1f1a', desc: 'Fragrant basmati rice layered with tender chicken, slow-dum cooked with whole spices, served with raita.', cat: 'Non-Veg' },
+    { id: 3, name: 'Masala Dosa', kitchen: 'South Spice', price: 90, icon: '🥞', bg: '#2f3a1a', desc: 'Crisp rice crepe filled with spiced potato masala, served with coconut chutney and sambar.', cat: 'Veg' },
+    { id: 4, name: 'Paneer Tikka Roll', kitchen: 'Kitchen Aruna', price: 140, icon: '🌯', bg: '#3a2f1a', desc: 'Char-grilled paneer tikka wrapped in a soft rumali roti with mint chutney and pickled onions.', cat: 'Veg' },
+    { id: 5, name: 'Chai & Samosa Combo', kitchen: 'Chai Point Kitchen', price: 60, icon: '☕', bg: '#3a2f1a', desc: 'Two crispy vegetable samosas paired with a hot cup of masala chai. Evening comfort, delivered.', cat: 'Snacks' },
+    { id: 6, name: 'Mutton Curry Thali', kitchen: 'Nawab\'s Kitchen', price: 250, icon: '🍖', bg: '#3a1f1a', desc: 'Rich, slow-simmered mutton curry with rice, roti, and a side of onion salad.', cat: 'Non-Veg' },
+];
+
+const cats = ['All', 'Veg', 'Non-Veg', 'Snacks'];
+let activeCat = 'All';
+let cart = {};
+
+function renderCats() {
+    const row = document.getElementById('cat-row');
+    row.innerHTML = '';
+    cats.forEach(c => {
+        const chip = document.createElement('div');
+        chip.className = 'cat-chip' + (c === activeCat ? ' selected' : '');
+        chip.textContent = c;
+        chip.onclick = () => { activeCat = c; renderCats(); renderDishes(); };
+        row.appendChild(chip);
+    });
+}
+
+function renderDishes() {
+    const list = document.getElementById('dish-list');
+    list.innerHTML = '';
+    const filtered = activeCat === 'All' ? dishes : dishes.filter(d => d.cat === activeCat);
+    filtered.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'dish-card';
+        card.innerHTML = `
+            <div class="dish-thumb" style="background:${d.bg}">${d.icon}</div>
+            <div class="dish-info">
+                <h5>${d.name}</h5>
+                <p>${d.kitchen}</p>
+                <span class="dish-price">₹${d.price}</span>
+            </div>
+            <button class="add-btn">+</button>
+        `;
+        card.onclick = () => openDetail(d.id);
+        list.appendChild(card);
+    });
+}
+
+let currentDish = null;
+let currentQty = 1;
+
+function openDetail(id) {
+    currentDish = dishes.find(d => d.id === id);
+    currentQty = 1;
+    document.getElementById('detail-icon').textContent = currentDish.icon;
+    document.getElementById('detail-icon').style.background = currentDish.bg;
+    document.getElementById('detail-name').textContent = currentDish.name;
+    document.getElementById('detail-price').textContent = '₹' + currentDish.price;
+    document.getElementById('detail-desc').textContent = currentDish.desc;
+    document.getElementById('qty-num').textContent = 1;
+    document.getElementById('add-total').textContent = '₹' + currentDish.price;
+    go('s-detail');
+}
+
+function changeQty(delta) {
+    currentQty = Math.max(1, currentQty + delta);
+    document.getElementById('qty-num').textContent = currentQty;
+    document.getElementById('add-total').textContent = '₹' + (currentDish.price * currentQty);
+}
+
+function addToCart() {
+    if (!cart[currentDish.id]) cart[currentDish.id] = { dish: currentDish, qty: 0 };
+    cart[currentDish.id].qty += currentQty;
+    updateCartFab();
+    go('s-home');
+}
+
+function updateCartFab() {
+    const items = Object.values(cart);
+    const count = items.reduce((a, i) => a + i.qty, 0);
+    const total = items.reduce((a, i) => a + i.qty * i.dish.price, 0);
+    const fab = document.getElementById('cart-fab');
+    if (count > 0) {
+        fab.classList.add('show');
+        document.getElementById('cart-fab-count').textContent = count + (count === 1 ? ' item' : ' items');
+        document.getElementById('cart-fab-total').textContent = 'View Cart · ₹' + total + ' ›';
+    } else {
+        fab.classList.remove('show');
+    }
+}
+
+function renderCart() {
+    const container = document.getElementById('cart-items');
+    const items = Object.values(cart);
+    if (items.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="emoji">🧺</div><p>Your cart is empty</p></div>`;
+        container.innerHTML += `<button class="btn-primary" onclick="go('s-home')">Browse Menu</button>`;
+        return;
+    }
+    let html = '';
+    items.forEach(i => {
+        html += `
+        <div class="cart-item">
+            <div class="cart-item-icon" style="background:${i.dish.bg}">${i.dish.icon}</div>
+            <div class="cart-item-info">
+                <h5>${i.dish.name}</h5>
+                <span>₹${i.dish.price * i.qty}</span>
+            </div>
+            <div class="mini-qty">
+                <button onclick="cartQty(${i.dish.id},-1)">−</button>
+                <span>${i.qty}</span>
+                <button onclick="cartQty(${i.dish.id},1)">+</button>
+            </div>
+        </div>`;
+    });
+    const subtotal = items.reduce((a, i) => a + i.qty * i.dish.price, 0);
+    html += `
+        <div class="summary-block">
+            <div class="summary-line"><span>Subtotal</span><span>₹${subtotal}</span></div>
+            <div class="summary-line"><span>Delivery Fee</span><span>₹20</span></div>
+            <div class="summary-line total"><span>Total</span><span>₹${subtotal + 20}</span></div>
+        </div>
+        <button class="btn-primary" onclick="go('s-checkout'); renderCheckout();">Proceed to Checkout &rsaquo;</button>
+    `;
+    container.innerHTML = html;
+}
+
+function cartQty(id, delta) {
+    if (!cart[id]) return;
+    cart[id].qty += delta;
+    if (cart[id].qty <= 0) delete cart[id];
+    renderCart();
+    updateCartFab();
+}
+
+function renderCheckout() {
+    const items = Object.values(cart);
+    const subtotal = items.reduce((a, i) => a + i.qty * i.dish.price, 0);
+    document.getElementById('co-subtotal').textContent = '₹' + subtotal;
+    document.getElementById('co-total').textContent = '₹' + (subtotal + 20);
+}
+
+function selectCard(el, group) {
+    const selector = group === 'addr' ? '.addr-card' : '.pay-card';
+    document.querySelectorAll(selector).forEach(c => {
+        c.classList.remove('selected');
+        c.querySelector('.check-dot').classList.remove('on');
+    });
+    el.classList.add('selected');
+    el.querySelector('.check-dot').classList.add('on');
+}
+
+function placeOrder() {
+    cart = {};
+    updateCartFab();
+    go('s-confirm');
+}
+
+function startTracking() {
+    resetTracking();
+    go('s-tracking');
+}
+
+let trackStep = 1;
+function resetTracking() {
+    trackStep = 1;
+    updateTrackingUI();
+}
+
+function advanceTracking() {
+    if (trackStep < 4) {
+        trackStep++;
+        updateTrackingUI();
+    }
+}
+
+function updateTrackingUI() {
+    const tins = document.querySelectorAll('#stack-tins .stack-tin');
+    tins.forEach((t, i) => t.classList.toggle('filled', i < trackStep));
+
+    for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('step-' + i);
+        step.classList.toggle('done', i <= trackStep);
+        const dot = step.querySelector('.step-dot');
+        dot.textContent = i < trackStep ? '✓' : (i === trackStep ? '✓' : i);
+        const timeEl = step.querySelector('.step-time');
+        if (i <= trackStep) timeEl.textContent = i === trackStep ? 'Now' : 'Done';
+    }
+
+    const titles = ['Order Confirmed', 'Cooking Your Meal', 'Out for Delivery', 'Delivered'];
+    const subs = [
+        'Kitchen Aruna received your order',
+        'Your food is being freshly prepared',
+        'Your tiffin is on its way to you',
+        'Enjoy your meal! 🎉'
+    ];
+    document.getElementById('track-title').textContent = titles[trackStep - 1];
+    document.getElementById('track-sub').textContent = subs[trackStep - 1];
+}
+
+renderCats();
+renderDishes();
+</script>
+</body>
+</html>
